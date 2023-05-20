@@ -1,0 +1,41 @@
+version: '3.3'
+
+services:
+  pg-docker:
+    user: root
+    container_name: dev-postgresql
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: ${POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      #PGDATA: /data/postgres
+    volumes:
+       #- postgres:/data/postgres
+       - ./.data/postgresql/data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - dev-network
+    #restart: unless-stopped
+  
+  pgadmin-docker:
+    image: dpage/pgadmin4
+    container_name: dev-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: me@example.com
+      PGADMIN_DEFAULT_PASSWORD: 1234567
+    ports:
+      - 5050:80
+    volumes:
+      - ./.data/pgadmin:/var/lib/pgadmin
+    depends_on:
+      - pg-docker
+    networks:
+      - dev-network
+# ======================================================================================================================
+# REDE
+# ======================================================================================================================
+networks:
+  dev-network:
+    driver: bridge
